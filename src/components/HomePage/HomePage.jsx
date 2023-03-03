@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
-import { getArticlesGlobal, getTags } from "../Article/ArticleServices"
+import { getArticlesGlobal, getTags, getArticlesFollow } from "../Article/ArticleServices"
+import { useUserContext } from "../../contexts/user_context"
 
 export default function HomePage() {
     const [listArticles, setListArticles] = useState([])
@@ -11,16 +12,17 @@ export default function HomePage() {
     const [currentTag, setCurrentTag] = useState(null)
     const [currentTab, setCurrentTab] = useState("global")
 
+    const { isLogin, userInfo } = useUserContext()
 
-    const handleChangePage = (newPage) => {
-        setListArticles([])
+    const handleChangePage = async (newPage) => {
+        setListArticles(null)
         setOffset((newPage-1)*10)
         setCurrentPage(newPage)
     }
     
     const handleSelectTag = (e, tag) => {
         e.preventDefault()
-        setListArticles([])
+        setListArticles(null)
         setAriticlesCount(null)
         setCurrentTab(null)
         setCurrentTag(tag)
@@ -29,7 +31,7 @@ export default function HomePage() {
     }
 
     const handleChangeTab = (tab) => {
-        setListArticles([])
+        setListArticles(null)
         setAriticlesCount(null)
         setCurrentTag(null)
         setCurrentTab(tab)
@@ -37,27 +39,57 @@ export default function HomePage() {
         setOffset(0)
     }
 
-    useEffect(() => {
+    const handleGetData = () => {
         getArticlesGlobal({
             limit: 10,
             offset: offset,
             tag: currentTag
         })
-        .then(res => {
-            setListArticles(res.data.articles)
-            let pageArray = []
-            for (let i = 1; i <= Math.ceil(res.data.articlesCount/10); i++) {
-                pageArray.push(i)
-            }
-            setAriticlesCount(pageArray)
-        })
-        .catch(err => console.log(err))
+            .then(res => {
+                setListArticles(res.data.articles)
+                let pageArray = []
+                for (let i = 1; i <= Math.ceil(res.data.articlesCount/10); i++) {
+                    pageArray.push(i)
+                }
+                setAriticlesCount(pageArray)
+            })
+            .catch(err => console.log(err))
+    }
+
+    useEffect(() => {
+        console.log(isLogin)
+
         getTags()
-        .then(res => {
-            setTags(res.data.tags)
-        })
-        .catch(err => console.log(err))
-    }, [currentPage, currentTag])
+            .then(res => {
+                setTags(res.data.tags)
+            })
+            .catch(err => console.log(err))
+        
+        if (isLogin && (currentTab === "global" || currentTab === "null") && currentTag === null) {
+            setCurrentTab("feed")
+        }
+    }, [])
+
+    useEffect(() => {
+        if (currentTab === "feed") {
+            getArticlesFollow({
+                limit: 10,
+                offset: offset,
+                tag: currentTag
+            })
+            .then(res => {
+                setListArticles(res.data.articles)
+                let pageArray = []
+                for (let i = 1; i <= Math.ceil(res.data.articlesCount/10); i++) {
+                    pageArray.push(i)
+                }
+                setAriticlesCount(pageArray)
+            })
+            .catch(err => console.log(err))
+        } else {
+            handleGetData()
+        }
+    }, [currentPage, currentTag, currentTab])
 
 
     return (
@@ -74,16 +106,20 @@ export default function HomePage() {
                 <div className="col-md-9">
                     <div className="feed-toggle">
                     <ul className="nav nav-pills outline-active">
-                        <li className="nav-item">
-                        <Link className="nav-link" to="">Your Feed</Link>
-                        </li>
+                        {
+                            isLogin && (
+                                <li className="nav-item" onClick={() => handleChangeTab("feed")}>
+                                    <Link className={currentTab === "feed" ? "nav-link active" : "nav-link"} to="#">Your Feed</Link>
+                                </li>
+                            )
+                        }
                         <li className="nav-item" onClick={() => handleChangeTab("global")}>
                         <Link className={currentTab === "global" ? "nav-link active" : "nav-link"} to="#">Global Feed</Link>
                         </li>
                         {
                             currentTag !== null && (
                                 <li className="nav-item">
-                                <a className="nav-link active" href="">
+                                <a className="nav-link active" href="/">
                                     <i className="ion-pound"></i>{currentTag}
                                     </a>
                                 </li>
@@ -93,8 +129,11 @@ export default function HomePage() {
                     </div>
 
                     {
+                        listArticles && 
                         listArticles?.length === 0
-                        ? <div className="article-preview">Loading....</div>
+                        ? <div className="article-preview">No articles are here... yet.</div>
+                        : listArticles?.length === null
+                        ? <div className="article-preview">Loading...</div>
                         : listArticles.map((article, index) => (
                             <div className="article-preview" key={index}>
                                 <div className="article-meta">

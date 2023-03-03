@@ -5,16 +5,18 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { RouterProvider } from "react-router-dom"
 import router from './rootRoutes';
-
 import Header from './components/Header/Header';
+import { UserProvider } from "./contexts/user_context"
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Header />
-    <RouterProvider router={router} >
-      <App />
-    </RouterProvider>
+    <UserProvider>
+      <RouterProvider router={router} >
+        <Header />
+        <App />
+      </RouterProvider>
+    </UserProvider>
   </React.StrictMode>
 );
 
