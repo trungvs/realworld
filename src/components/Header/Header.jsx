@@ -1,7 +1,10 @@
 import React from "react";
+import { Link } from "react-router-dom"
+import { useUserContext } from "../../contexts/user_context"
 
 export default function Header() {
 
+    const { isLogin, userInfo  } = useUserContext()
 
     return (
         <>
@@ -24,23 +27,36 @@ export default function Header() {
         {/* <body> */}
             <nav className="navbar navbar-light">
             <div className="container">
-                <a className="navbar-brand" href="/">conduit</a>
+                <Link className="navbar-brand" to="/">conduit</Link>
                 <ul className="nav navbar-nav pull-xs-right">
                 <li className="nav-item">
-                    <a className="nav-link active" href="/">Home</a>
+                    <Link className="nav-link active" to="/">Home</Link>
                 </li>
-                <li className="nav-item">
-                    <a className="nav-link" href="/editor"> <i className="ion-compose"></i>&nbsp;New Article </a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link" href="/settings"> <i className="ion-gear-a"></i>&nbsp;Settings </a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link" href="/login">Sign in</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link" href="/register">Sign up</a>
-                </li>
+                {
+                    isLogin
+                    ? <>
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/editor"> <i className="ion-compose"></i>&nbsp;New Article </Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/settings"> <i className="ion-gear-a"></i>&nbsp;Settings </Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link className="nav-link" to={ `/` + userInfo?.username}>
+                                <img src={userInfo?.image} className="user-pic" alt={userInfo?.username} />
+                                {userInfo?.username}
+                            </Link>
+                        </li>
+                    </>
+                    : <>
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/login">Sign in</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/register">Sign up</Link>
+                        </li>
+                    </>
+                }
                 </ul>
             </div>
             </nav>
