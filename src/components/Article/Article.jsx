@@ -1,116 +1,84 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import ArticleAuthor from "./ArticleAuthor";
+import ArticleComment from "./ArticleComment";
+import ArticleAuthorControl from "./ArticleAuthorControl";
+import { getArticle } from "./ArticleServices";
+import { useUserContext } from "../../contexts/user_context";
 
 export default function Article() {
+  const params = useParams();
+  const { isLogin, userInfo } = useUserContext();
+  const [articleData, setArticleData] = useState(null);
 
+  useEffect(() => {
+    getArticle(params.slug).then((res) => {
+      setArticleData(res.data.article);
+    });
+  }, []);
 
-    return (
-        <div class="article-page">
-            <div class="banner">
-                <div class="container">
-                <h1>How to build webapps that scale</h1>
+  return (
+    <div class="article-page">
+      {articleData ? (
+        <>
+          <div class="banner">
+            <div class="container">
+              <h1>{articleData?.title}</h1>
 
-                <div class="article-meta">
-                    <a href=""><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
-                    <div class="info">
-                    <a href="" class="author">Eric Simons</a>
-                    <span class="date">January 20th</span>
-                    </div>
-                    <button class="btn btn-sm btn-outline-secondary">
-                    <i class="ion-plus-round"></i>
-                    &nbsp; Follow Eric Simons <span class="counter">(10)</span>
-                    </button>
-                    &nbsp;&nbsp;
-                    <button class="btn btn-sm btn-outline-primary">
-                    <i class="ion-heart"></i>
-                    &nbsp; Favorite Post <span class="counter">(29)</span>
-                    </button>
-                </div>
-                </div>
+              {articleData?.author?.username === userInfo?.username ? (
+                <ArticleAuthorControl
+                  author={articleData?.author}
+                  createdAt={articleData?.createdAt}
+                  slug={articleData?.slug}
+                />
+              ) : (
+                <ArticleAuthor
+                  author={articleData?.author}
+                  favorited={articleData?.favorited}
+                  favoritesCount={articleData?.favoritesCount}
+                  createdAt={articleData?.createdAt}
+                  slug={articleData?.slug}
+                />
+              )}
+            </div>
+          </div>
+
+          <div class="container page">
+            <div class="row article-content">
+              <div class="col-md-12">
+                <p>{articleData?.description}</p>
+                <p>{articleData?.body}</p>
+              </div>
             </div>
 
-            <div class="container page">
-                <div class="row article-content">
-                <div class="col-md-12">
-                    <p>
-                    Web development technologies have evolved at an incredible clip over the past few years.
-                    </p>
-                    <h2 id="introducing-ionic">Introducing RealWorld.</h2>
-                    <p>It's a great solution for learning how other frameworks work.</p>
-                </div>
-                </div>
+            <hr />
 
-                <hr />
-
-                <div class="article-actions">
-                <div class="article-meta">
-                    <a href="profile.html"><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
-                    <div class="info">
-                    <a href="" class="author">Eric Simons</a>
-                    <span class="date">January 20th</span>
-                    </div>
-
-                    <button class="btn btn-sm btn-outline-secondary">
-                    <i class="ion-plus-round"></i>
-                    &nbsp; Follow Eric Simons
-                    </button>
-                    &nbsp;
-                    <button class="btn btn-sm btn-outline-primary">
-                    <i class="ion-heart"></i>
-                    &nbsp; Favorite Post <span class="counter">(29)</span>
-                    </button>
-                </div>
-                </div>
-
-                <div class="row">
-                <div class="col-xs-12 col-md-8 offset-md-2">
-                    <form class="card comment-form">
-                    <div class="card-block">
-                        <textarea class="form-control" placeholder="Write a comment..." rows="3"></textarea>
-                    </div>
-                    <div class="card-footer">
-                        <img src="http://i.imgur.com/Qr71crq.jpg" class="comment-author-img" />
-                        <button class="btn btn-sm btn-primary">Post Comment</button>
-                    </div>
-                    </form>
-
-                    <div class="card">
-                    <div class="card-block">
-                        <p class="card-text">
-                        With supporting text below as a natural lead-in to additional content.
-                        </p>
-                    </div>
-                    <div class="card-footer">
-                        <a href="" class="comment-author">
-                        <img src="http://i.imgur.com/Qr71crq.jpg" class="comment-author-img" />
-                        </a>
-                        &nbsp;
-                        <a href="" class="comment-author">Jacob Schmidt</a>
-                        <span class="date-posted">Dec 29th</span>
-                    </div>
-                    </div>
-
-                    <div class="card">
-                    <div class="card-block">
-                        <p class="card-text">
-                        With supporting text below as a natural lead-in to additional content.
-                        </p>
-                    </div>
-                    <div class="card-footer">
-                        <a href="" class="comment-author">
-                        <img src="http://i.imgur.com/Qr71crq.jpg" class="comment-author-img" />
-                        </a>
-                        &nbsp;
-                        <a href="" class="comment-author">Jacob Schmidt</a>
-                        <span class="date-posted">Dec 29th</span>
-                        <span class="mod-options">
-                        <i class="ion-edit"></i>
-                        <i class="ion-trash-a"></i>
-                        </span>
-                    </div>
-                    </div>
-                </div>
-                </div>
+            <div class="article-actions">
+              {articleData?.author?.username === userInfo?.username ? (
+                <ArticleAuthorControl
+                  author={articleData?.author}
+                  createdAt={articleData?.createdAt}
+                  slug={articleData?.slug}
+                />
+              ) : (
+                <ArticleAuthor
+                  author={articleData?.author}
+                  favorited={articleData?.favorited}
+                  favoritesCount={articleData?.favoritesCount}
+                  createdAt={articleData?.createdAt}
+                  slug={articleData?.slug}
+                />
+              )}
             </div>
+
+            <ArticleComment slug={articleData?.slug} />
+          </div>
+        </>
+      ) : (
+        <div class="container page">
+          <div className="article-preview">Loading...</div>
         </div>
-    )
+      )}
+    </div>
+  );
 }
