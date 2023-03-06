@@ -40,14 +40,14 @@ export default function ArticleFavorites(props) {
 
   return (
     <button
-      class={
+      className={
         favorited ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline-primary"
       }
       onClick={handleClickButton}
     >
-      <i class="ion-heart"></i>
+      <i className="ion-heart"></i>
       &nbsp; {favorited ? "Unfavorite Post" : "Favorite Post"}{" "}
-      <span class="counter">({favoritesCount})</span>
+      <span className="counter">({favoritesCount})</span>
     </button>
   );
 }

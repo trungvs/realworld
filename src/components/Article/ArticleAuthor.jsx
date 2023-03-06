@@ -16,15 +16,15 @@ export default function ArticleAuthor(props) {
     setSlug(props.slug);
   }, [props.favorited]);
   return (
-    <div class="article-meta">
+    <div className="article-meta">
       <Link to={`/${author?.username}`}>
-        <img src={author?.image} />
+        <img src={author?.image} alt={author?.image} />
       </Link>
-      <div class="info">
-        <Link to={`/${author?.username}`} class="author">
+      <div className="info">
+        <Link to={`/${author?.username}`} className="author">
           {author?.username}
         </Link>
-        <span class="date">
+        <span className="date">
           {new Date(props?.createdAt).toLocaleDateString()}
         </span>
       </div>

@@ -10,6 +10,7 @@ export default function Article() {
   const params = useParams();
   const { isLogin, userInfo } = useUserContext();
   const [articleData, setArticleData] = useState(null);
+  const [favorited, setFavorited] = useState(null)
 
   useEffect(() => {
     getArticle(params.slug).then((res) => {
@@ -18,11 +19,11 @@ export default function Article() {
   }, []);
 
   return (
-    <div class="article-page">
+    <div className="article-page">
       {articleData ? (
         <>
-          <div class="banner">
-            <div class="container">
+          <div className="banner">
+            <div className="container">
               <h1>{articleData?.title}</h1>
 
               {articleData?.author?.username === userInfo?.username ? (
@@ -43,17 +44,27 @@ export default function Article() {
             </div>
           </div>
 
-          <div class="container page">
-            <div class="row article-content">
-              <div class="col-md-12">
+          <div className="container page">
+            <div className="row article-content">
+              <div className="col-md-12">
                 <p>{articleData?.description}</p>
                 <p>{articleData?.body}</p>
+
+                <ul className="tag-list">
+                  {
+                    articleData?.tagList
+                    && articleData.tagList.map((item, index) => (
+                      <li className="tag-default tag-pill tag-outline ng-binding ng-scope" key={index
+                      }>{item}</li>
+                    ))
+                  }
+                </ul>
               </div>
             </div>
 
             <hr />
 
-            <div class="article-actions">
+            <div className="article-actions">
               {articleData?.author?.username === userInfo?.username ? (
                 <ArticleAuthorControl
                   author={articleData?.author}
@@ -71,11 +82,11 @@ export default function Article() {
               )}
             </div>
 
-            <ArticleComment slug={articleData?.slug} />
+            <ArticleComment slug={articleData.slug} />
           </div>
         </>
       ) : (
-        <div class="container page">
+        <div className="container page">
           <div className="article-preview">Loading...</div>
         </div>
       )}

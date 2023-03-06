@@ -8,28 +8,28 @@ import { getCurrentUser } from "./components/User/UserServices"
 
 function App() {
 
-  const { isLogin, userInfo, handleSetLogin  } = useUserContext()
+  const { isLogin, userInfo, handleSetLogin } = useUserContext()
 
   const userToken = localStorage.getItem("jwtToken")
 
   if (userToken && !isLogin) {
     getCurrentUser()
-    .then(res => {
-      handleSetLogin(res.data.user)
-    })
-    .catch(err => {
-      handleSetLogin([])
-      localStorage.removeItem("jwtToken")
-    })
+      .then(res => {
+        handleSetLogin(res.data.user)
+      })
+      .catch(err => {
+        handleSetLogin([])
+        localStorage.removeItem("jwtToken")
+      })
   }
-  
+
   axios.interceptors.request.use(function (config) {
-    if (userInfo?.token) {
+    if (localStorage.getItem("jwtToken")) {
       config = {
         ...config,
         headers: {
           ...config.headers,
-          Authorization: "Token " + userInfo?.token
+          Authorization: "Token " + JSON.parse(localStorage.getItem("jwtToken"))
         }
       }
     }
@@ -50,10 +50,10 @@ function App() {
   // });
 
   return (
-    <div className="App"> 
-        <Header />
-        <Outlet />
-        <Footer />
+    <div className="App">
+      <Header />
+      <Outlet />
+      <Footer />
     </div>
   );
 }
