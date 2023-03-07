@@ -13,7 +13,7 @@ export const UserProvider = ({ children }) => {
   const [state, dispatch] = useReducer(user_reducer, initialState);
 
   const handleSetLogin = (value) => {
-    if (value.token) {
+    if (value?.token) {
       dispatch({
         type: IS_LOGIN,
         payload: true,

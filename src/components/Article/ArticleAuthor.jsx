@@ -5,7 +5,7 @@ import ArticleFavorites from "./ArticleFavorites";
 
 export default function ArticleAuthor(props) {
   const [author, setAuthor] = useState({});
-  const [favorited, setFavorited] = useState(null);
+  const [favorited, setFavorited] = useState(props.favorited);
   const [favoritesCount, setFavoritesCount] = useState(null);
   const [slug, setSlug] = useState(null);
 
@@ -14,17 +14,22 @@ export default function ArticleAuthor(props) {
     setFavorited(props.favorited);
     setFavoritesCount(props.favoritesCount);
     setSlug(props.slug);
-  }, [props.favorited]);
+  }, []);
+
+  useEffect(() => {
+    console.log("fav", favorited)
+  }, [favorited])
+
   return (
-    <div class="article-meta">
+    <div className="article-meta">
       <Link to={`/${author?.username}`}>
-        <img src={author?.image} />
+        <img src={author?.image} alt={author?.image} />
       </Link>
-      <div class="info">
-        <Link to={`/${author?.username}`} class="author">
+      <div className="info">
+        <Link to={`/${author?.username}`} className="author">
           {author?.username}
         </Link>
-        <span class="date">
+        <span className="date">
           {new Date(props?.createdAt).toLocaleDateString()}
         </span>
       </div>
@@ -34,9 +39,10 @@ export default function ArticleAuthor(props) {
       />
       &nbsp;&nbsp;
       <ArticleFavorites
-        favorited={props.favorited}
+        favorited={favorited}
         favoritesCount={props.favoritesCount}
         slug={props.slug}
+        handleClickButton={() => props.handleClickButton()}
       />
     </div>
   );

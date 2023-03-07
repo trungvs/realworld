@@ -21,7 +21,7 @@ export default function ArticleAuthorControl(props) {
   return (
     <div className="article-meta">
       <Link to={`/${author?.username}`}>
-        <img src={author?.image} />
+        <img src={author?.image} alt={author?.image} />
       </Link>
       <div className="info">
         <Link to={`/${author?.username}`} className="author">

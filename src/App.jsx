@@ -5,55 +5,66 @@ import Footer from './components/Footer/Footer';
 import { Outlet } from "react-router-dom"
 import { useUserContext } from "./contexts/user_context"
 import { getCurrentUser } from "./components/User/UserServices"
+import { useEffect } from 'react';
 
 function App() {
 
-  const { isLogin, userInfo, handleSetLogin  } = useUserContext()
+  const { isLogin, userInfo, handleSetLogin } = useUserContext()
 
   const userToken = localStorage.getItem("jwtToken")
 
   if (userToken && !isLogin) {
     getCurrentUser()
-    .then(res => {
-      handleSetLogin(res.data.user)
-    })
-    .catch(err => {
-      handleSetLogin([])
-      localStorage.removeItem("jwtToken")
-    })
+      .then(res => {
+        handleSetLogin(res.data.user)
+        localStorage.setItem("jwtToken", JSON.stringify(res.data.user.token))
+      })
+      .catch(err => {
+        handleSetLogin([])
+        localStorage.removeItem("jwtToken")
+      })
   }
-  
-  axios.interceptors.request.use(function (config) {
-    if (userInfo?.token) {
-      config = {
-        ...config,
-        headers: {
-          ...config.headers,
-          Authorization: "Token " + userInfo?.token
-        }
+
+  axios.interceptors.request.use(async function (config) {
+    const token = await new Promise((resolve) => {
+      const token = localStorage.getItem("jwtToken");
+      if (token) {
+        resolve(`Token ${JSON.parse(token)}`);
+      } else {
+        resolve(null);
       }
+    });
+    if (token) {
+      config.headers.Authorization = token;
     }
     return config;
   }, function (error) {
     return Promise.reject(error);
   });
 
-  // axios.interceptors.response.use(function (response) {
-  //   dispatch(closeLoading())
-  //   if (response.data.code === 401 || 403) {
-  //     // toast.warning(response.data.message)s
+  // axios.interceptors.request.use(async function (config) {
+  //   const token = await new Promise((resolve) => {
+  //     const token = localStorage.getItem("jwtToken");
+  //     if (token) {
+  //       resolve(`Token ${JSON.parse(token)}`);
+  //     } else {
+  //       resolve(null);
+  //     }
+  //   });
+  //   if (token) {
+  //     config.headers.Authorization = token;
   //   }
-  //   return response;
+  //   return config;
   // }, function (error) {
-  //   dispatch(closeLoading())
   //   return Promise.reject(error);
   // });
 
+
   return (
-    <div className="App"> 
-        <Header />
-        <Outlet />
-        <Footer />
+    <div className="App">
+      <Header />
+      <Outlet />
+      <Footer />
     </div>
   );
 }
