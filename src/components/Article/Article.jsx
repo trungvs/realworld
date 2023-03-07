@@ -1,20 +1,44 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArticleAuthor from "./ArticleAuthor";
 import ArticleComment from "./ArticleComment";
 import ArticleAuthorControl from "./ArticleAuthorControl";
-import { getArticle } from "./ArticleServices";
+import { favoriteArticle, getArticle, unFavoriteArticle } from "./ArticleServices";
 import { useUserContext } from "../../contexts/user_context";
 
 export default function Article() {
   const params = useParams();
-  const { isLogin, userInfo } = useUserContext();
+  const navigate = useNavigate()
+  const { isLogin, userInfo, handleSetLogin } = useUserContext();
   const [articleData, setArticleData] = useState(null);
   const [favorited, setFavorited] = useState(null)
+  const [favoritesCount, setFavoritesCount] = useState(null);
+
+
+  const handleClickButton = () => {
+    // if (isLogin) {
+    //   if (favorited) {
+    //     unFavoriteArticle(articleData?.slug).then((res) => {
+    //       setFavorited(res.data.article.favorited);
+    //       setFavoritesCount(res.data.article.favoritesCount);
+    //     });
+    //   } else {
+    //     favoriteArticle(articleData?.slug).then((res) => {
+    //       setFavorited(res.data.article.favorited);
+    //       setFavoritesCount(res.data.article.favoritesCount);
+    //     });
+    //   }
+    // } else {
+    //   navigate("/login");
+    // }
+    setFavorited(!favorited)
+  };
 
   useEffect(() => {
     getArticle(params.slug).then((res) => {
       setArticleData(res.data.article);
+      setFavorited(res.data.article.favorited)
+      setFavoritesCount(res.data.article.favoritesCount)
     });
   }, []);
 
@@ -35,10 +59,11 @@ export default function Article() {
               ) : (
                 <ArticleAuthor
                   author={articleData?.author}
-                  favorited={articleData?.favorited}
+                  favorited={favorited}
                   favoritesCount={articleData?.favoritesCount}
                   createdAt={articleData?.createdAt}
                   slug={articleData?.slug}
+                  handleClickButton={() => handleClickButton()}
                 />
               )}
             </div>
@@ -74,7 +99,7 @@ export default function Article() {
               ) : (
                 <ArticleAuthor
                   author={articleData?.author}
-                  favorited={articleData?.favorited}
+                  favorited={favorited}
                   favoritesCount={articleData?.favoritesCount}
                   createdAt={articleData?.createdAt}
                   slug={articleData?.slug}

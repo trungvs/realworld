@@ -5,6 +5,7 @@ import Footer from './components/Footer/Footer';
 import { Outlet } from "react-router-dom"
 import { useUserContext } from "./contexts/user_context"
 import { getCurrentUser } from "./components/User/UserServices"
+import { useEffect } from 'react';
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
     getCurrentUser()
       .then(res => {
         handleSetLogin(res.data.user)
+        localStorage.setItem("jwtToken", JSON.stringify(res.data.user.token))
       })
       .catch(err => {
         handleSetLogin([])
@@ -23,31 +25,40 @@ function App() {
       })
   }
 
-  axios.interceptors.request.use(function (config) {
-    if (localStorage.getItem("jwtToken")) {
-      config = {
-        ...config,
-        headers: {
-          ...config.headers,
-          Authorization: "Token " + JSON.parse(localStorage.getItem("jwtToken"))
-        }
+  axios.interceptors.request.use(async function (config) {
+    const token = await new Promise((resolve) => {
+      const token = localStorage.getItem("jwtToken");
+      if (token) {
+        resolve(`Token ${JSON.parse(token)}`);
+      } else {
+        resolve(null);
       }
+    });
+    if (token) {
+      config.headers.Authorization = token;
     }
     return config;
   }, function (error) {
     return Promise.reject(error);
   });
 
-  // axios.interceptors.response.use(function (response) {
-  //   dispatch(closeLoading())
-  //   if (response.data.code === 401 || 403) {
-  //     // toast.warning(response.data.message)s
+  // axios.interceptors.request.use(async function (config) {
+  //   const token = await new Promise((resolve) => {
+  //     const token = localStorage.getItem("jwtToken");
+  //     if (token) {
+  //       resolve(`Token ${JSON.parse(token)}`);
+  //     } else {
+  //       resolve(null);
+  //     }
+  //   });
+  //   if (token) {
+  //     config.headers.Authorization = token;
   //   }
-  //   return response;
+  //   return config;
   // }, function (error) {
-  //   dispatch(closeLoading())
   //   return Promise.reject(error);
   // });
+
 
   return (
     <div className="App">

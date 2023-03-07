@@ -45,7 +45,7 @@ export default function ArticleComment({ slug }) {
     getAllComments(params.slug).then((res) => {
       setCommentList(res.data.comments);
     });
-  }, [params.slug, slug]);
+  }, [params.slug, slug, reload]);
   return (
     <div className="row">
       <div className="col-xs-12 col-md-8 offset-md-2">
@@ -61,7 +61,7 @@ export default function ArticleComment({ slug }) {
               ></textarea>
             </div>
             <div className="card-footer">
-              <img src={userInfo?.image} className="comment-author-img" alt={userInfo?.username}/>
+              <img src={userInfo?.image} className="comment-author-img" alt={userInfo?.username} />
               <button type="submit" className="btn btn-sm btn-primary">
                 Post Comment
               </button>

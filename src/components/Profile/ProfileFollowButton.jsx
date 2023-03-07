@@ -16,10 +16,11 @@ export default function ProfileFollowButton(props) {
     }
   };
 
-  // useEffect(() => {
-  //   setFollowing(props.following);
-  //   console.log(props.following);
-  // }, [props]);
+  useEffect(() => {
+    setFollowing(following);
+    console.log(props.following);
+  }, []);
+
 
   return (
     <button
